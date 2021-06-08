@@ -1,0 +1,9 @@
+[package]
+authors = ["Shane Snover <ssnover95@gmail.com>"]
+name = "infrastructure"
+edition = "2018"
+version = "0.1.0"
+
+[dependencies]
+cortex-m = "0.7.1"
+cortex-m-rt = "0.6.13"

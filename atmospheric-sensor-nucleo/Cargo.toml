@@ -1,0 +1,12 @@
+[package]
+authors = ["Shane Snover <ssnover95@gmail.com>"]
+name = "atmospheric-sensor-nucleo"
+edition = "2018"
+version = "0.1.0"
+
+[dependencies]
+cortex-m = "0.7.1"
+cortex-m-rt = "0.6.13"
+# TODO: Update back to cargo crate when 0.7 is released
+stm32f3xx-hal = { version = "^0.6", features = ["stm32f302x8"] }
+infrastructure = { path = "../infrastructure" }
