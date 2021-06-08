@@ -2,7 +2,9 @@
 members = [
     "atmospheric-sensor-nrf52",
     "atmospheric-sensor-nucleo",
-    "infrastructure"]
+    "infrastructure",
+    "linux-sensor-client",
+    "linux-sensor-sim"]
 
 # cargo build/run
 [profile.dev]
