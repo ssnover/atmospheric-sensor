@@ -22,5 +22,7 @@ async fn listen(port: &mut tokio::fs::File) -> std::io::Result<()> {
         let mut buf: [u8; 1024] = [0; 1024];
         let num_bytes = port.read(&mut buf[..]).await?;
         println!("Received {} bytes", num_bytes);
+        let msg = cobs::decode_vec(&buf[..num_bytes]).unwrap();
+        println!("Message: {:?}", msg);
     }
 }
