@@ -1,7 +1,7 @@
 use std::os::unix::io::{FromRawFd, IntoRawFd};
 use tokio::io::{AsyncReadExt};
 
-use serial_protocol::ReportCO2Data;
+use serial_protocol::{Header, MessageType, ReportCO2Data};
 
 #[tokio::main]
 async fn main() {
@@ -25,7 +25,10 @@ async fn listen(port: &mut tokio::fs::File) -> std::io::Result<()> {
         let num_bytes = port.read(&mut buf[..]).await?;
         println!("Received {} bytes", num_bytes);
         let msg = cobs::decode_vec(&buf[..num_bytes]).unwrap();
-        let (msg, _remaining) = postcard::take_from_bytes::<ReportCO2Data>(&msg[..]).unwrap();
-        println!("Message: 0x{:x?}", msg.measurement);
+        let (header, msg) = postcard::take_from_bytes::<Header>(&msg[..]).unwrap();
+        if header.msg_type == MessageType::ReportCO2Data {
+            let (data, _remaining) = postcard::take_from_bytes::<ReportCO2Data>(&msg[..]).unwrap();
+            println!("Data: 0x{:x}", data.measurement);
+        }
     }
 }
