@@ -7,6 +7,7 @@ use tokio::sync::Mutex;
 use tokio::time::{sleep, Duration};
 
 use linux_sensor_sim::PseudoTerminal;
+use serial_protocol::ReportCO2Data;
 
 #[tokio::main]
 async fn main() -> std::io::Result<()> {
@@ -52,7 +53,9 @@ async fn simulator_run(pty: PseudoTerminal) {
 }
 
 async fn report_co2_data(tx: &mut Sender<Vec<u8>>) -> std::io::Result<()> {
-    let write_buffer: Vec<u8> = vec![0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08];
+    let measurement = 0x12345678;
+    let msg = ReportCO2Data { measurement };
+    let write_buffer = postcard::to_stdvec(&msg).unwrap();
     tx.send(write_buffer).await.unwrap();
     Ok(())
 }
