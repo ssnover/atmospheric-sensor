@@ -53,7 +53,7 @@ async fn simulator_run(pty: PseudoTerminal) {
 }
 
 async fn report_co2_data(tx: &mut Sender<Vec<u8>>) -> std::io::Result<()> {
-    let measurement = 0x12345678;
+    let measurement: f32 = 300.;
     let msg = ReportCO2Data { measurement };
     let msg = serial_protocol::Message { header: serial_protocol::Header { version: 0x00, id: 0x00, msg_type: serial_protocol::MessageType::ReportCO2Data }, message: msg };
     let write_buffer = postcard::to_stdvec(&msg).unwrap();

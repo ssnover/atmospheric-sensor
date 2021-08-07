@@ -3,10 +3,15 @@ authors = ["Shane Snover <ssnover95@gmail.com>"]
 name = "atmospheric-sensor-nucleo"
 edition = "2018"
 version = "0.1.0"
+resolver = "2"
 
 [dependencies]
+cobs = { version = "0.1.4", default-features = false }
 cortex-m = "0.7.1"
 cortex-m-rt = "0.6.13"
-# TODO: Update back to cargo crate when 0.7 is released
-stm32f3xx-hal = { version = "^0.6", features = ["stm32f302x8"] }
+nb = "1.0.0"
+stm32f3xx-hal = { version = "0.7.0", features = ["stm32f302x8"] }
 infrastructure = { path = "../infrastructure" }
+scd30 = { git = "https://github.com/ssnover/scd30-rs", branch = "chore/update-heapless" }
+postcard = "0.7"
+serial-protocol = { path = "../serial-protocol" }

@@ -1,11 +1,12 @@
 [workspace]
 members = [
-    "atmospheric-sensor-nrf52",
-    "atmospheric-sensor-nucleo",
-    "infrastructure",
     "linux-sensor-client",
     "linux-sensor-sim",
     "serial-protocol"]
+exclude = [
+    "atmospheric-sensor-nrf52",
+    "atmospheric-sensor-nucleo",
+    "infrastructure"]
 
 # cargo build/run
 [profile.dev]
