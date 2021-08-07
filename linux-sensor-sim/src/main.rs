@@ -55,7 +55,14 @@ async fn simulator_run(pty: PseudoTerminal) {
 async fn report_co2_data(tx: &mut Sender<Vec<u8>>) -> std::io::Result<()> {
     let measurement: f32 = 300.;
     let msg = ReportCO2Data { measurement };
-    let msg = serial_protocol::Message { header: serial_protocol::Header { version: 0x00, id: 0x00, msg_type: serial_protocol::MessageType::ReportCO2Data }, message: msg };
+    let msg = serial_protocol::Message {
+        header: serial_protocol::Header {
+            version: 0x00,
+            id: 0x00,
+            msg_type: serial_protocol::MessageType::ReportCO2Data,
+        },
+        message: msg,
+    };
     let write_buffer = postcard::to_stdvec(&msg).unwrap();
     tx.send(write_buffer).await.unwrap();
     Ok(())
@@ -77,9 +84,9 @@ async fn serve_serial_port(mut pty: Arc<Mutex<PseudoTerminal>>, tx: Sender<Vec<u
     loop {
         tokio::select! {
             _ = sleep(Duration::from_millis(1)) => {}
-            v = server_context(&mut pty) => { 
+            v = server_context(&mut pty) => {
                     if v.len() > 0 {
-                        tx.send(v).await.unwrap(); 
+                        tx.send(v).await.unwrap();
                     }
                 }
         }

@@ -1,6 +1,6 @@
 #![no_std]
 
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 #[repr(u16)]
 #[derive(Serialize, Deserialize, PartialEq, Eq)]
@@ -27,7 +27,7 @@ pub struct Message<T> {
 
 #[derive(Serialize, Deserialize)]
 pub struct ReportCO2Data {
-    pub measurement: f32 // ppm
+    pub measurement: f32, // ppm
 }
 
 impl ReportCO2Data {
@@ -41,5 +41,5 @@ pub struct RequestCO2Data;
 
 #[derive(Serialize, Deserialize)]
 pub struct CO2DataResponse {
-    pub measurement: f32 // ppm
+    pub measurement: f32, // ppm
 }

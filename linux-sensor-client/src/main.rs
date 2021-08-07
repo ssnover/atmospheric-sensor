@@ -1,5 +1,5 @@
 use std::os::unix::io::{FromRawFd, IntoRawFd};
-use tokio::io::{AsyncReadExt};
+use tokio::io::AsyncReadExt;
 
 use serial_protocol::{Header, MessageType, ReportCO2Data};
 
@@ -7,7 +7,7 @@ use serial_protocol::{Header, MessageType, ReportCO2Data};
 async fn main() {
     let builder = serialport::new("/dev/ttyACM0", 115200);
     let port = builder.open_native().unwrap();
-    let mut port = unsafe {tokio::fs::File::from_raw_fd(port.into_raw_fd()) };
+    let mut port = unsafe { tokio::fs::File::from_raw_fd(port.into_raw_fd()) };
 
     tokio::select! {
         _ = listen(&mut port) => {
