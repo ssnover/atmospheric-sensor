@@ -84,7 +84,9 @@ fn main() -> ! {
             let bytes_used = postcard::to_slice(&msg, &mut buf).unwrap();
             let mut encoder_buf = [0u8; 32];
             let bytes_used = cobs::encode(bytes_used, &mut encoder_buf);
-            serial.bwrite_all(&encoder_buf[..bytes_used]).unwrap();
+            // Add the zero that the encoder doesn't add for some reason
+            encoder_buf[bytes_used] = 0;
+            serial.bwrite_all(&encoder_buf[..=bytes_used]).unwrap();
         } else {
             serial.write(b'0').unwrap();
         }

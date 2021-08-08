@@ -43,6 +43,7 @@ async fn simulator_run(pty: PseudoTerminal) {
         ) {
             (Ok(()), _) => {
                 continue;
+                return;
             }
             (Err(e), _) => {
                 eprintln!("Error while reporting data: {}", e);
@@ -64,6 +65,8 @@ async fn report_co2_data(tx: &mut Sender<Vec<u8>>) -> std::io::Result<()> {
         message: msg,
     };
     let write_buffer = postcard::to_stdvec(&msg).unwrap();
+    let write_buffer = vec![0x11, 0x22, 0x00, 0x33];
+    sleep(Duration::from_millis(10000)).await;
     tx.send(write_buffer).await.unwrap();
     Ok(())
 }
@@ -84,9 +87,9 @@ async fn serve_serial_port(mut pty: Arc<Mutex<PseudoTerminal>>, tx: Sender<Vec<u
     loop {
         tokio::select! {
             _ = sleep(Duration::from_millis(1)) => {}
-            v = server_context(&mut pty) => {
-                    if v.len() > 0 {
-                        tx.send(v).await.unwrap();
+            msg_buffer = server_context(&mut pty) => {
+                    if !msg_buffer.is_empty() {
+                        tx.send(msg_buffer).await.unwrap();
                     }
                 }
         }
@@ -101,16 +104,10 @@ async fn server_context(pty: &mut Arc<Mutex<PseudoTerminal>>) -> Vec<u8> {
 }
 
 async fn recv_client_task(pty: Arc<Mutex<PseudoTerminal>>, rx: Receiver<Vec<u8>>) {
-    loop {
-        match rx.recv().await {
-            Ok(msg) => {
-                let msg = cobs::encode_vec(&msg[..]);
-                let mut pty = pty.lock().await;
-                pty.master_file.write_all(&msg[..]).await.unwrap();
-            }
-            Err(_) => {
-                break;
-            }
-        }
+    while let Ok(msg) = rx.recv().await {
+        let mut msg = cobs::encode_vec(&msg[..]);
+        msg.push(0x00);
+        let mut pty = pty.lock().await;
+        pty.master_file.write_all(&msg[..]).await.unwrap();
     }
 }
