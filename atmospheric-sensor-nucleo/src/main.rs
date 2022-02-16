@@ -62,6 +62,8 @@ fn main() -> ! {
     let mut sensor = Scd30::new_with_address(i2c, 0x61);
     sensor.start_measuring_with_mbar(30).unwrap();
 
+    let mut body_buffer = [0u8; 32];
+
     loop {
         for _ in 0..10 {
             ld2.toggle().unwrap();
@@ -73,20 +75,16 @@ fn main() -> ! {
                 measurement: measurement.co2,
             };
             let msg = serial_protocol::Message {
-                header: serial_protocol::Header {
+                hdr: serial_protocol::Header {
                     version: 0x00,
                     id: 0x00,
                     msg_type: serial_protocol::MessageType::ReportCO2Data,
                 },
-                message: msg,
+                msg: &serial_protocol::encode_body(&msg, &mut body_buffer).unwrap(),
             };
             let mut buf = [0u8; 32];
-            let bytes_used = postcard::to_slice(&msg, &mut buf).unwrap();
-            let mut encoder_buf = [0u8; 32];
-            let bytes_used = cobs::encode(bytes_used, &mut encoder_buf);
-            // Add the zero that the encoder doesn't add for some reason
-            encoder_buf[bytes_used] = 0;
-            serial.bwrite_all(&encoder_buf[..=bytes_used]).unwrap();
+            let bytes_used = serial_protocol::encode(&msg, &mut buf).unwrap();
+            serial.bwrite_all(&bytes_used).unwrap();
         } else {
             serial.write(b'0').unwrap();
         }

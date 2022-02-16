@@ -43,7 +43,6 @@ async fn simulator_run(pty: PseudoTerminal) {
         ) {
             (Ok(()), _) => {
                 continue;
-                return;
             }
             (Err(e), _) => {
                 eprintln!("Error while reporting data: {}", e);
@@ -56,17 +55,17 @@ async fn simulator_run(pty: PseudoTerminal) {
 async fn report_co2_data(tx: &mut Sender<Vec<u8>>) -> std::io::Result<()> {
     let measurement: f32 = 300.;
     let msg = ReportCO2Data { measurement };
+    let mut body_buffer = [0u8; 10];
     let msg = serial_protocol::Message {
-        header: serial_protocol::Header {
+        hdr: serial_protocol::Header {
             version: 0x00,
             id: 0x00,
             msg_type: serial_protocol::MessageType::ReportCO2Data,
         },
-        message: msg,
+        msg: &serial_protocol::encode_body(&msg, &mut body_buffer).unwrap(),
     };
-    let write_buffer = postcard::to_stdvec(&msg).unwrap();
-    let write_buffer = vec![0x11, 0x22, 0x00, 0x33];
-    sleep(Duration::from_millis(10000)).await;
+    let write_buffer = serial_protocol::encode(&msg).unwrap();
+    sleep(Duration::from_millis(1000)).await;
     tx.send(write_buffer).await.unwrap();
     Ok(())
 }
@@ -105,8 +104,7 @@ async fn server_context(pty: &mut Arc<Mutex<PseudoTerminal>>) -> Vec<u8> {
 
 async fn recv_client_task(pty: Arc<Mutex<PseudoTerminal>>, rx: Receiver<Vec<u8>>) {
     while let Ok(msg) = rx.recv().await {
-        let mut msg = cobs::encode_vec(&msg[..]);
-        msg.push(0x00);
+        println!("Sending: {:?}", &msg);
         let mut pty = pty.lock().await;
         pty.master_file.write_all(&msg[..]).await.unwrap();
     }

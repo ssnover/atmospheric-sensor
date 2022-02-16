@@ -7,6 +7,5 @@ edition = "2018"
 async-channel = "^1.6"
 cobs = "0.1.4"
 nix = "0.19"
-postcard = { version = "0.7", features = ["use-std"] }
-serial-protocol = { path = "../serial-protocol" }
+serial-protocol = { path = "../serial-protocol", features = ["use_std"] }
 tokio = { version = "^1.6", features = ["fs", "io-util", "macros", "rt-multi-thread", "signal", "sync", "time"] }

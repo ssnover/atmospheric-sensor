@@ -1,8 +1,12 @@
 [package]
 name = "serial-protocol"
 version = "0.1.0"
-edition = "2018"
+edition = "2021"
 
 [dependencies]
+postcard = "0.7"
 serde = { version = "1.0", default-features = false, features = ["derive"] }
 serde_derive = { version = "1.0", default-features = false }
+
+[features]
+use_std = ["postcard/use-std"]
